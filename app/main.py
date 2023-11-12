@@ -13,11 +13,6 @@ class TextIn(BaseModel):
     Id: str
 
 
-@app.get("/")
-def home():
-    return {"health_check": "OK"}
-
-
 @app.post("/predict")
 def predict(input: TextIn):
     return predict_pipeline(input)
