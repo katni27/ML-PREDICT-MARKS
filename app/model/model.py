@@ -41,11 +41,25 @@ def create_input_data(journal_id):
             ignore_index=True,
         )
 
+    electronic_event_numbers = sorted(grades["ElectronicEventNumber"].unique())
+    max_electronic_event_number = int(electronic_event_numbers[0] or 0)
+
     for index, row in grades.iterrows():
         mark = row["Grade"] / row["GradeMax"] * row["Weight"]
+        if mark != 0:
+            max_electronic_event_number = max(
+                int(row["ElectronicEventNumber"] or 0), max_electronic_event_number
+            )
         result.loc[result["StudentId"] == row["StudentId"], "Rating"] += mark
 
-    return {"InputData": result, "Quantity": len(grades["EventName"].unique())}
+    if max_electronic_event_number == 0:
+        quantity_complete_tasks = len(grades["EventName"].unique())
+    else:
+        quantity_complete_tasks = (
+            electronic_event_numbers.index(max_electronic_event_number) + 1
+        )
+
+    return {"InputData": result, "Quantity": quantity_complete_tasks}
 
 
 def predict_pipeline(input):
